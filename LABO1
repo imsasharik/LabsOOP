@@ -213,9 +213,12 @@ class AngleRange:
     def _contains_range(self, other):
         """Проверка вхождения промежутка в другой"""
         # Упрощенная проверка - точное совпадение границ
-        return (self.start == other.start and self.end == other.end and
+        return (self.start <= other.start and self.end >= other.end and
                 (not other.start_inclusive or self.start_inclusive) and
-                (not other.end_inclusive or self.end_inclusive))
+                (not other.end_inclusive or self.end_inclusive)) or \
+               ((other.start > self.start) or (other.start == self.start and self.start_inclusive)
+                or (other.end < self.end) or (other.end == self.end and self.end_inclusive))
+
 
     def __add__(self, other):
         """Объединение промежутков"""
@@ -303,6 +306,7 @@ print(f"Длина range3: {abs(range4)}\n")
 test_angle = Angle.from_degrees(60)
 print(f"{test_angle} in {range1}: {test_angle in range1}")
 print(f"{test_angle} in {range4}: {test_angle in range4}\n")
+print(f"{test_angle} in {range4}: {test_angle in range4}\n")
 
 print(f"{range1} == {range2}: {range1 == range2}\n")
 print(f"{range2} == {range5}: {range2 == range5}\n")
@@ -312,3 +316,20 @@ print(f"{range1} - {range4} = {range1 - range4}")
 
 print(f"{range5} - {range2} = {range5 - range2}")
 print(f"{range5} - {range5} = {range5 - range5}")
+
+#  [Pi / 6, 7 * Pi] in [Pi / 3,  8 * Pi] = True
+
+range6 = AngleRange(math.pi / 6, 7 * math.pi)
+range7 = AngleRange(math.pi/3, math.pi * 8)
+
+print(f"{range6} in {range7}: {range6 in range7}\n")
+
+range6 = AngleRange.from_degrees(20, 200)
+range7 = AngleRange.from_degrees(10, 0)
+
+print(f"{range6} in {range7}: {range6 in range7}\n")
+
+range6 = AngleRange.from_degrees(20, 60)
+range7 = AngleRange.from_degrees(10, 70)
+
+print(f"{range6} in {range7}: {range6 in range7}\n")
