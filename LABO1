@@ -4,7 +4,6 @@ import math
 class Angle:
     """Класс для хранения и работы с углами"""
     def __init__(self, radians: float) -> None:
-        # Основной конструктор - принимает только радианы
         self._radians = self._normalize(radians)
 
     @classmethod
@@ -114,17 +113,17 @@ class Angle:
         return NotImplemented
 
     def __mul__(self, scalar):
-        """Умножение на скаляр"""
+        """Умножение на число"""
         if isinstance(scalar, (int, float)):
             return Angle(self._radians * scalar)
         return NotImplemented
 
     def __rmul__(self, scalar):
-        """Правое умножение на скаляр"""
+        """Правое умножение на число"""
         return self.__mul__(scalar)
 
     def __truediv__(self, scalar):
-        """Деление на скаляр"""
+        """Деление на число"""
         if isinstance(scalar, (int, float)):
             if scalar == 0:
                 raise ZeroDivisionError("Division by zero")
@@ -218,20 +217,16 @@ class AngleRange:
                 (not other.start_inclusive or self.start_inclusive) and
                 (not other.end_inclusive or self.end_inclusive))
 
-
     def __add__(self, other):
         """Объединение промежутков"""
         if not isinstance(other, AngleRange):
             return NotImplemented
 
-        # Проверяем пересечение промежутков
         if self._intersects(other):
-            # Если пересекаются - создаем объединенный промежуток
             new_start = min(self.start, other.start)
             new_end = max(self.end, other.end)
             return AngleRange(new_start, new_end)
         else:
-            # Если не пересекаются - возвращаем строку с описанием
             return f"{self} ∪ {other}"
 
     def __sub__(self, other):
@@ -239,37 +234,29 @@ class AngleRange:
         if not isinstance(other, AngleRange):
             return NotImplemented
 
-        if self._intersects(other):
-            # Частичное пересечение
+        elif self == other:
+            return "∅"
+        elif self._intersects(other):
             new_start = min(self.start, other.start)
             new_end = max(self.end, other.end)
             if self.end > other.end:
                 return f"{AngleRange(new_start, other.start, start_inclusive=True, end_inclusive=False)} ∪ {AngleRange(other.end, new_end, start_inclusive=False, end_inclusive=True)}"
             else:
                 return "The first corner range should be larger than the second range."
-            # return f"{self} ∖ {other}"
-        elif self == other:
-            # Полное совпадение - пустое множество
-            return "∅"
         else:
-            # Нет пересечения - возвращаем исходный промежуток
             return str(self)
 
     def _intersects(self, other):
         """Проверяет, пересекаются ли промежутки"""
-        # Простая проверка пересечения
+
         if self.start <= self.end and other.start <= other.end:
-            # Оба обычных диапазона
             return not (self.end < other.start or other.end < self.start)
         else:
             return True
 
 
-# Демонстрация работы классов
+print("класс Angle")
 
-print("=== Демонстрация класса Angle ===")
-
-# Создание углов
 angle1 = Angle.from_degrees(45)  # 45 градусов
 angle2 = Angle(math.pi / 4)  # π/4 радиан
 angle3 = Angle.from_degrees(90)
@@ -278,11 +265,9 @@ print(f"angle1: {angle1} ({angle1.radians:.4f} рад)")
 print(f"angle2: {angle2} ({angle2.radians:.4f} рад)")
 print(f"angle3: {angle3} ({angle3.radians:.4f} рад)\n")
 
-# Сравнение
 print(f"{angle1} == {angle2}: {angle1 == angle2}")
 print(f"{angle1} < {angle3}: {angle1 < angle3}\n")
 
-# Арифметические операции
 sum_angle = angle1 + angle3
 diff_angle = angle3 - angle1
 scaled_angle = angle1 * 2
@@ -291,34 +276,35 @@ print(f"{angle1} + {angle3} = {sum_angle}")
 print(f"{angle3} - {angle1} = {diff_angle}")
 print(f"{angle1} * 2 = {scaled_angle}\n")
 
-# Преобразования
 print(f"float(angle1): {float(angle1):.4f}")
 print(f"int(angle1): {int(angle1)}")
 print(f"str(angle1): {str(angle1)}\n")
 
-print("=== Демонстрация класса AngleRange ===")
+print("класс AngleRange")
 
-# Создание промежутков
 range1 = AngleRange(0, math.pi / 2)  # [0°, 90°]
-range2 = AngleRange.from_degrees(45, 135)
-range3 = AngleRange.from_degrees(270,90) # Промежуток через 0
+range2 = AngleRange.from_degrees(45, 135, True, False)
+range3 = AngleRange.from_degrees(270, 90)  # Промежуток через 0
 range4 = AngleRange.from_degrees(10, 40)
+range5 = AngleRange.from_degrees(45, 135)
 
 print(f"range1: {range1}")
 print(f"range2: {range2}")
 print(f"range3: {range3}")
+print(f"range3: {range4}")
 print(f"Длина range1: {abs(range1)}")
 print(f"Длина range2: {abs(range2)}")
-print(f"Длина range3: {abs(range3)}\n")
+print(f"Длина range3: {abs(range3)}")
+print(f"Длина range3: {abs(range4)}\n")
 
-# Проверка принадлежности
 test_angle = Angle.from_degrees(60)
 print(f"{test_angle} in {range1}: {test_angle in range1}")
 print(f"{test_angle} in {range4}: {test_angle in range4}\n")
 
-# Сравнение промежутков
 print(f"{range1} == {range2}: {range1 == range2}\n")
+print(f"{range2} == {range5}: {range2 == range5}\n")
 
-# Операции с промежутками
 print(f"{range1} + {range2} = {range1 + range2}")
 print(f"{range1} - {range4} = {range1 - range4}")
+
+print(f"{range5} - {range2} = {range5 - range2}")
