@@ -73,7 +73,6 @@ class Printer:
 
         for char in text.upper():
             if char == ' ':
-                # Добавляем пробелы во все строки
                 for i in range(cls._font_height):
                     lines[i] += ' ' * 5
                 continue
@@ -83,9 +82,8 @@ class Printer:
 
                 for i, line in enumerate(char_pattern):
                     rendered_line = line.replace('*', symbol)
-                    # Дополняем пробелами справа до fixed_width
                     padded_line = rendered_line.center(cls._font_height)
-                    lines[i] += padded_line + ' '  # пробел между символами
+                    lines[i] += padded_line + ' '
 
         # Выводим все строки
         for line in lines:
@@ -105,9 +103,9 @@ def demonstrate_printer() -> None:
     # Демонстрация 1: Статическое использование со шрифтом высотой 5
     print("1. Статическое использование (шрифт 5x5):")
     Printer.load_font('font5x5.json')
-    Printer.print("SLENDER", Color.RED, '#')
+    Printer.print("SLENDER", Color.BRIGHT_WHITE, '#')
     print()
-    Printer.print("MAN", Color.GREEN, '@')
+    Printer.print("MAN", Color.BLACK, '@')
 
     print("\n" + "=" * 50 + "\n")
 
@@ -120,7 +118,6 @@ def demonstrate_printer() -> None:
 
     print("\n" + "=" * 50 + "\n")
 
-    # Демонстрация 3: Смена шрифта на высоту 7
     print("3. Смена шрифта на 7x7:")
     Printer.load_font('font7x7.json')
 
@@ -136,11 +133,11 @@ def demonstrate_printer() -> None:
     print("4. Разные цвета и символы (шрифт 7x7):")
 
     Printer.load_font('font7x7.json')
-    Printer.print("tri", Color.BRIGHT_BLACK, 'Ё')
+    Printer.print("tri", Color.BRIGHT_WHITE, 'Ё')
     print()
-    Printer.print("color", Color.BRIGHT_GREEN, '№')
+    Printer.print("color", Color.BRIGHT_BLUE, '№')
     print()
-    Printer.print("yaaay", Color.BRIGHT_BLUE, '@')
+    Printer.print("yaaay", Color.BRIGHT_RED, '@')
 
     print("\n" + "=" * 50 + "\n")
 
@@ -148,16 +145,13 @@ def demonstrate_printer() -> None:
     print("5. Смешанное использование:")
 
     # Статический вызов
-    Printer.load_font('font7x7.json')
+    Printer.load_font('font5x5.json')
     Printer.print("SUPER", Color.BRIGHT_MAGENTA, '%')
     print()
 
     # Контекстный менеджер
     with Printer(Color.BRIGHT_YELLOW, ')', 'font7x7.json') as p:
         p.print_text("SONIC")
-
-    print("\n" + "=" * 50)
-    print("Демонстрация завершена!")
 
 
 if __name__ == "__main__":
