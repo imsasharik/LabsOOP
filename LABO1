@@ -233,7 +233,10 @@ class AngleRange:
         """Разность промежутков"""
         if not isinstance(other, AngleRange):
             return NotImplemented
-
+        if self.start_inclusive and not other.start_inclusive:
+            return self.start
+        elif self.end_inclusive and not other.end_inclusive:
+            return self.end
         elif self == other:
             return "∅"
         elif self._intersects(other):
@@ -308,3 +311,4 @@ print(f"{range1} + {range2} = {range1 + range2}")
 print(f"{range1} - {range4} = {range1 - range4}")
 
 print(f"{range5} - {range2} = {range5 - range2}")
+print(f"{range5} - {range5} = {range5 - range5}")
