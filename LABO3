@@ -285,7 +285,7 @@ def comprehensive_logger_test():
     ]
 
     formatters = [StandardFormatter()]
-    handlers = [ConsoleHandler(), FileHandler("comprehensive_test.log")]
+    handlers = [ConsoleHandler(), FileHandler("detailed_test.log")]
 
     logger = Logger(filters, formatters, handlers)
 
