@@ -4,7 +4,7 @@ import math
 class Angle:
     """Класс для хранения и работы с углами"""
     def __init__(self, radians: float) -> None:
-        self._radians = self._normalize(radians)
+        self._radians = radians
 
     @classmethod
     def from_degrees(cls, degrees):
@@ -18,7 +18,7 @@ class Angle:
     @radians.setter
     def radians(self, value):
         """Установить угол в радианах"""
-        self._radians = self._normalize(value)
+        self._radians = value
 
     @property
     def degrees(self):
@@ -59,7 +59,7 @@ class Angle:
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return abs(self._radians - other._radians) < 1e-10
+            return abs(self._normalize(self._radians) - other._normalize(other._radians)) < 1e-10
         return NotImplemented
 
     def __lt__(self, other):
@@ -67,7 +67,7 @@ class Angle:
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return self._radians < other._radians
+            return self._normalize(self._radians) < other._normalize(other._radians)
         return NotImplemented
 
     def __le__(self, other):
@@ -75,7 +75,7 @@ class Angle:
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return self._radians <= other._radians
+            return self._normalize(self._radians) <= other._normalize(other._radians)
         return NotImplemented
 
     def __gt__(self, other):
@@ -215,9 +215,7 @@ class AngleRange:
         # Упрощенная проверка - точное совпадение границ
         return (self.start <= other.start and self.end >= other.end and
                 (not other.start_inclusive or self.start_inclusive) and
-                (not other.end_inclusive or self.end_inclusive)) or \
-               ((other.start > self.start) or (other.start == self.start and self.start_inclusive)
-                or (other.end < self.end) or (other.end == self.end and self.end_inclusive))
+                (not other.end_inclusive or self.end_inclusive))
 
 
     def __add__(self, other):
@@ -263,16 +261,16 @@ class AngleRange:
 
 print("класс Angle")
 
-angle1 = Angle.from_degrees(45)  # 45 градусов
-angle2 = Angle(math.pi / 4)  # π/4 радиан
-angle3 = Angle.from_degrees(90)
+angle1 = Angle.from_degrees(90)  # 45 градусов
+angle2 = Angle(math.pi / 2)  # π/4 радиан
+angle3 = Angle.from_degrees(440)
 
 print(f"angle1: {angle1} ({angle1.radians:.4f} рад)")
 print(f"angle2: {angle2} ({angle2.radians:.4f} рад)")
 print(f"angle3: {angle3} ({angle3.radians:.4f} рад)\n")
 
 print(f"{angle1} == {angle2}: {angle1 == angle2}")
-print(f"{angle1} < {angle3}: {angle1 < angle3}\n")
+print(f"{angle1} <= {angle3}: {angle1 <= angle3}\n")
 
 sum_angle = angle1 + angle3
 diff_angle = angle3 - angle1
@@ -319,13 +317,8 @@ print(f"{range5} - {range5} = {range5 - range5}")
 
 #  [Pi / 6, 7 * Pi] in [Pi / 3,  8 * Pi] = True
 
-range6 = AngleRange(math.pi / 6, 7 * math.pi)
-range7 = AngleRange(math.pi/3, math.pi * 8)
-
-print(f"{range6} in {range7}: {range6 in range7}\n")
-
-range6 = AngleRange.from_degrees(20, 200)
-range7 = AngleRange.from_degrees(10, 0)
+range6 = AngleRange(math.pi / 3, 9 * math.pi)
+range7 = AngleRange(math.pi / 6, math.pi * 8)
 
 print(f"{range6} in {range7}: {range6 in range7}\n")
 
