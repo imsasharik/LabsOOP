@@ -59,22 +59,18 @@ class Printer:
         print(ANSI.RESET, end='')
 
     @classmethod
-    def load_font(cls, font_file: str):
+    def load_font(cls, font_file: str) -> None:
         cls._current_font = FontLoader.load_font(font_file)
         if cls._current_font:
             first_char = next(iter(cls._current_font.values()))
             cls._font_height = len(first_char)
 
     @classmethod
-    def print(cls, text: str, color: Color = Color.WHITE, symbol: str = '*'):
+    def print(cls, text: str, color: Color = Color.WHITE, symbol: str = '*') -> None:
 
         lines = [''] * cls._font_height
 
         for char in text.upper():
-            if char == ' ':
-                for i in range(cls._font_height):
-                    lines[i] += ' ' * 5
-                continue
 
             if char in cls._current_font:
                 char_pattern = cls._current_font[char]
@@ -87,7 +83,7 @@ class Printer:
         for line in lines:
             print(ANSI.set_color(color) + line + ANSI.RESET)
 
-    def print_text(self, text: str):
+    def print_text(self, text: str) -> None:
         self.__class__.print(text, self.color, self.symbol)
         print()
 
