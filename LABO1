@@ -1,92 +1,95 @@
 import math
+from typing import List, Union
+
+
+def normalize(radians: float) -> float:
+    """Нормализовать угол в диапазон [0, 2π)"""
+    two_pi = 2 * math.pi
+    normalized = radians % two_pi
+    if normalized < 0:
+        normalized += two_pi
+    return normalized
 
 
 class Angle:
     """Класс для хранения и работы с углами"""
+
     def __init__(self, radians: float) -> None:
         self._radians = radians
 
     @classmethod
-    def from_degrees(cls, degrees):
+    def from_degrees(cls, degrees: int) -> 'Angle':
         return cls(math.radians(degrees))
 
     @property
-    def radians(self):
+    def radians(self) -> float:
         """Получить угол в радианах"""
         return self._radians
 
     @radians.setter
-    def radians(self, value):
+    def radians(self, value: float) -> None:
         """Установить угол в радианах"""
         self._radians = value
 
     @property
-    def degrees(self):
+    def degrees(self) -> float:
         """Получить угол в градусах"""
         return math.degrees(self._radians)
 
     @degrees.setter
-    def degrees(self, value):
+    def degrees(self, value: float) -> None:
         """Установить угол в градусах"""
         self._radians = math.radians(value)
 
-    def _normalize(self, radians):
-        """Нормализовать угол в диапазон [0, 2π)"""
-        two_pi = 2 * math.pi
-        normalized = radians % two_pi
-        if normalized < 0:
-            normalized += two_pi
-        return normalized
-
-    def __float__(self):
+    def __float__(self) -> float:
         """Преобразование в float (в радианах)"""
         return self._radians
 
-    def __int__(self):
+    def __int__(self) -> int:
         """Преобразование в int (в радианах, округление)"""
         return int(round(self._radians))
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Строковое представление"""
         return f"{self.degrees:.2f}°"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Представление для отладки"""
         return f"Angle(radians={self._radians:.6f})"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Сравнение на равенство"""
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return abs(self._normalize(self._radians) - other._normalize(other._radians)) < 1e-10
+            return abs(normalize(self._radians) - normalize(other._radians)) < 1e-10
         return NotImplemented
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         """Меньше"""
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return self._normalize(self._radians) < other._normalize(other._radians)
+            return normalize(self._radians) < normalize(other._radians)
         return NotImplemented
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         """Меньше или равно"""
         if isinstance(other, (int, float)):
             other = Angle(other)
         if isinstance(other, Angle):
-            return self._normalize(self._radians) <= other._normalize(other._radians)
+            return normalize(self._radians) <= normalize(other._radians)
         return NotImplemented
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         """Больше"""
         return not self <= other
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         """Больше или равно"""
         return not self < other
 
-    def __add__(self, other):
+    def __add__(self, other) -> 'Angle':
         """Сложение"""
         if isinstance(other, (int, float)):
             return Angle(self._radians + other)
@@ -94,11 +97,11 @@ class Angle:
             return Angle(self._radians + other._radians)
         return NotImplemented
 
-    def __radd__(self, other):
+    def __radd__(self, other) -> 'Angle':
         """Правое сложение"""
         return self.__add__(other)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> 'Angle':
         """Вычитание"""
         if isinstance(other, (int, float)):
             return Angle(self._radians - other)
@@ -106,23 +109,23 @@ class Angle:
             return Angle(self._radians - other._radians)
         return NotImplemented
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Union['Angle', float]):
         """Правое вычитание"""
         if isinstance(other, (int, float)):
             return Angle(other - self._radians)
         return NotImplemented
 
-    def __mul__(self, scalar):
+    def __mul__(self, scalar: float) -> 'Angle':
         """Умножение на число"""
         if isinstance(scalar, (int, float)):
             return Angle(self._radians * scalar)
         return NotImplemented
 
-    def __rmul__(self, scalar):
+    def __rmul__(self, scalar: float) -> 'Angle':
         """Правое умножение на число"""
         return self.__mul__(scalar)
 
-    def __truediv__(self, scalar):
+    def __truediv__(self, scalar: float) -> 'Angle':
         """Деление на число"""
         if isinstance(scalar, (int, float)):
             if scalar == 0:
@@ -130,36 +133,39 @@ class Angle:
             return Angle(self._radians / scalar)
         return NotImplemented
 
-    def __abs__(self):
+    def __abs__(self) -> 'Angle':
         """Абсолютное значение"""
         return Angle(abs(self._radians))
 
 
+def to_angle(value: Angle) -> Angle:
+    """Преобразование в Angle"""
+    if isinstance(value, Angle):
+        return value
+    elif isinstance(value, (int, float)):
+        return Angle(value)
+    else:
+        raise TypeError("Value must be Angle, int or float")
+
+
 class AngleRange:
     """Класс для хранения промежутков углов"""
-    def __init__(self, start, end, start_inclusive=True, end_inclusive=True):
 
-        self.start = self._to_angle(start)
-        self.end = self._to_angle(end)
+    def __init__(self, start: Union[int, float, Angle], end: Union[int, float, Angle], start_inclusive=True,
+                 end_inclusive=True) -> None:
+
+        self.start = to_angle(start)
+        self.end = to_angle(end)
         self.start_inclusive = start_inclusive
         self.end_inclusive = end_inclusive
 
     @classmethod
-    def from_degrees(cls, start_deg: float, end_deg: float, start_inclusive=True, end_inclusive=True):
+    def from_degrees(cls, start_deg: int, end_deg: int, start_inclusive=True, end_inclusive=True) -> 'AngleRange':
         start = Angle.from_degrees(start_deg)
         end = Angle.from_degrees(end_deg)
         return cls(start, end, start_inclusive, end_inclusive)
 
-    def _to_angle(self, value):
-        """Преобразование в Angle"""
-        if isinstance(value, Angle):
-            return value
-        elif isinstance(value, (int, float)):
-            return Angle(value)
-        else:
-            raise TypeError("Value must be Angle, int or float")
-
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Сравнение на равенство"""
         if not isinstance(other, AngleRange):
             return False
@@ -168,57 +174,55 @@ class AngleRange:
                 self.start_inclusive == other.start_inclusive and
                 self.end_inclusive == other.end_inclusive)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Строковое представление"""
         start_bracket = '[' if self.start_inclusive else '('
         end_bracket = ']' if self.end_inclusive else ')'
         return f"{start_bracket}{self.start}, {self.end}{end_bracket}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Представление для отладки"""
         return (f"AngleRange(start={self.start!r}, end={self.end!r}, "
                 f"start_inclusive={self.start_inclusive}, end_inclusive={self.end_inclusive})")
 
-    def __abs__(self):
+    def __abs__(self) -> Angle:
         """Длина промежутка"""
         if self.start <= self.end:
             return Angle(self.end.radians - self.start.radians)
-        else:
-            # Промежуток проходит через 0
-            return Angle(2 * math.pi - self.start.radians + self.end.radians)
 
-    def __contains__(self, item):
+        # Промежуток проходит через 0
+        return Angle(2 * math.pi - self.start.radians + self.end.radians)
+
+    def __contains__(self, item: Union['AngleRange', Angle]) -> bool:
         """Проверка принадлежности угла или промежутка"""
         if isinstance(item, (Angle, int, float)):
-            angle = self._to_angle(item)
+            angle = to_angle(item)
             return self._contains_angle(angle)
         elif isinstance(item, AngleRange):
             return self._contains_range(item)
-        else:
-            return False
+        return False
 
-    def _contains_angle(self, angle):
+    def _contains_angle(self, angle: Angle) -> bool:
         """Проверка принадлежности угла"""
         if self.start <= self.end:
             # Обычный промежуток
             left_ok = (angle > self.start) or (angle == self.start and self.start_inclusive)
             right_ok = (angle < self.end) or (angle == self.end and self.end_inclusive)
             return left_ok and right_ok
-        else:
-            # Промежуток проходит через 0
-            left_ok = (angle > self.start) or (angle == self.start and self.start_inclusive)
-            right_ok = (angle < self.end) or (angle == self.end and self.end_inclusive)
-            return left_ok or right_ok
 
-    def _contains_range(self, other):
+        # Промежуток проходит через 0
+        left_ok = (angle > self.start) or (angle == self.start and self.start_inclusive)
+        right_ok = (angle < self.end) or (angle == self.end and self.end_inclusive)
+        return left_ok or right_ok
+
+    def _contains_range(self, other: 'AngleRange') -> bool:
         """Проверка вхождения промежутка в другой"""
         # Упрощенная проверка - точное совпадение границ
         return (self.start <= other.start and self.end >= other.end and
                 (not other.start_inclusive or self.start_inclusive) and
                 (not other.end_inclusive or self.end_inclusive))
 
-
-    def __add__(self, other):
+    def __add__(self, other: 'AngleRange') -> List['AngleRange']:
         """Объединение промежутков"""
         if not isinstance(other, AngleRange):
             return NotImplemented
@@ -226,37 +230,66 @@ class AngleRange:
         if self._intersects(other):
             new_start = min(self.start, other.start)
             new_end = max(self.end, other.end)
-            return AngleRange(new_start, new_end)
-        else:
-            return f"{self} ∪ {other}"
+            if new_start == self.start:
+                new_start_inclusive = self.start_inclusive
+            else:
+                new_start_inclusive = other.start_inclusive
+            if new_end == self.end:
+                new_end_inclusive = self.end_inclusive
+            else:
+                new_end_inclusive = other.end_inclusive
+            return [AngleRange(new_start, new_end, new_start_inclusive, new_end_inclusive)]
 
-    def __sub__(self, other):
+        return [self, other]
+
+    def __sub__(self, other: 'AngleRange') -> List['AngleRange']:
         """Разность промежутков"""
         if not isinstance(other, AngleRange):
             return NotImplemented
-        if self.start_inclusive and not other.start_inclusive:
-            return self.start
+        if (self.start_inclusive and not other.start_inclusive) and \
+                (self.end_inclusive and not other.end_inclusive) and self._intersects(other):
+            return [AngleRange(self.start, self.start), AngleRange(self.end, self.end)]
+        elif self.start_inclusive and not other.start_inclusive:
+            return [AngleRange(self.start, self.start)]
         elif self.end_inclusive and not other.end_inclusive:
-            return self.end
+            return [AngleRange(self.end, self.end)]
         elif self == other:
-            return "∅"
+            return []
         elif self._intersects(other):
             new_start = min(self.start, other.start)
             new_end = max(self.end, other.end)
             if self.end > other.end:
-                return f"{AngleRange(new_start, other.start, start_inclusive=True, end_inclusive=False)} ∪ {AngleRange(other.end, new_end, start_inclusive=False, end_inclusive=True)}"
+                return [AngleRange(new_start, other.start, start_inclusive=True, end_inclusive=False),
+                        AngleRange(other.end, new_end, start_inclusive=False, end_inclusive=True)]
             else:
-                return "The first corner range should be larger than the second range."
+                return NotImplemented
         else:
-            return str(self)
+            return [self]
 
-    def _intersects(self, other):
+    def _intersects(self, other: 'AngleRange') -> bool:
         """Проверяет, пересекаются ли промежутки"""
 
         if self.start <= self.end and other.start <= other.end:
             return not (self.end < other.start or other.end < self.start)
-        else:
-            return True
+
+        return True
+
+
+def format_ranges(ranges: List['AngleRange']) -> str:
+    """Форматирует список промежутков в строку"""
+    if not ranges:
+        return "∅"
+
+    if len(ranges) == 1:
+        if ranges[0].start == ranges[0].end:
+            return str(ranges[0].start)
+        return str(ranges[0])
+
+    if len(ranges) == 2:
+        if ranges[0].start == ranges[0].end and ranges[1].start == ranges[1].end:
+            return " ∪ ".join(str(r) for r in [ranges[0].start, ranges[1].start])
+
+    return " ∪ ".join(str(r) for r in ranges)
 
 
 print("класс Angle")
@@ -309,16 +342,16 @@ print(f"{test_angle} in {range4}: {test_angle in range4}\n")
 print(f"{range1} == {range2}: {range1 == range2}\n")
 print(f"{range2} == {range5}: {range2 == range5}\n")
 
-print(f"{range1} + {range2} = {range1 + range2}")
-print(f"{range1} - {range4} = {range1 - range4}")
+print(f"{range1} + {range2} = {format_ranges(range1 + range2)}")
+print(f"{range1} - {range4} = {format_ranges(range1 - range4)}")
 
-print(f"{range5} - {range2} = {range5 - range2}")
-print(f"{range5} - {range5} = {range5 - range5}")
+print(f"{range5} - {range2} = {format_ranges(range5 - range2)}")
+print(f"{range5} - {range5} = {format_ranges(range5 - range5)}")
 
 #  [Pi / 6, 7 * Pi] in [Pi / 3,  8 * Pi] = True
 
-range6 = AngleRange(math.pi / 3, 9 * math.pi)
-range7 = AngleRange(math.pi / 6, math.pi * 8)
+range6 = AngleRange(math.pi / 6, 7 * math.pi)
+range7 = AngleRange(math.pi / 3, math.pi * 8)
 
 print(f"{range6} in {range7}: {range6 in range7}\n")
 
@@ -326,3 +359,13 @@ range6 = AngleRange.from_degrees(20, 60)
 range7 = AngleRange.from_degrees(10, 70)
 
 print(f"{range6} in {range7}: {range6 in range7}\n")
+
+range6 = AngleRange.from_degrees(10, 50)
+range7 = AngleRange.from_degrees(10, 50, False, False)
+
+print(f"{range6} - {range7} = {format_ranges(range6 - range7)}")
+
+range6 = AngleRange(math.pi / 3, math.pi, False, False)
+range7 = AngleRange(math.pi / 2, 7 * math.pi / 6)
+
+print(f"{range6} + {range7} = {format_ranges(range6 + range7)}")
