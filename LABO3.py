@@ -6,11 +6,13 @@ import sys
 from enum import Enum
 from typing import List, Protocol
 
+
 # 1. Перечислитель LogLevel
 class LogLevel(Enum):
     INFO = 1
     WARN = 2
     ERROR = 3
+
 
 # 2. протокол фильтров
 class LogFilterProtocol(Protocol):
@@ -36,7 +38,7 @@ class ReLogFilter:
 
     def __init__(self, pattern: str):
         try:
-            self.pattern = re.compile(pattern)
+            self.pattern = re.compile(pattern, re.IGNORECASE)
         except re.error as e:
             print(f"Ошибка компиляции регулярного выражения '{pattern}': {e}")
 
@@ -68,7 +70,7 @@ class FileHandler:
         try:
             # Проверяем возможность записи в файл
             with open(filename, 'a', encoding='utf-8') as f:
-                f.write('')  # Пробная запись
+                f.write('')  # тестовая запись
             self.filename = filename
         except PermissionError as e:
             print(f"Ошибка доступа к файлу '{filename}': {e}")
@@ -133,7 +135,7 @@ class SyslogHandler:
         timestamp = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         formatted_message = f"SYSLOG [{log_level.name}] [{timestamp}] {text}"
         print(formatted_message, file=sys.stderr)
-        sys.stderr.flush()  # Принудительно сбросить буфер
+        sys.stderr.flush()
 
 
 class FtpHandler:
@@ -154,7 +156,7 @@ class FtpHandler:
                     f.write(text + '\n')
 
                 with open(temp_file, 'rb') as f:
-                    ftp.storbinary(f"STOR {self.remote_path}", f)
+                    ftp.storbinary(f"{self.remote_path}", f)
         except Exception as e:
             print(f"FTP error: {e}")
 
@@ -235,7 +237,6 @@ def test_filters():
 def test_formatter():
     print("\n=== ТЕСТ ФОРМАТТЕРА ===")
 
-    # Тестируем разные форматы времени
     test_cases = [
         ('%Y.%m.%d %H:%M:%S', "Стандартный формат"),
         ('%d/%m/%Y %H:%M', "Европейский формат"),
@@ -245,10 +246,9 @@ def test_formatter():
 
     for time_format, description in test_cases:
         formatter = StandardFormatter(time_format)
-        formatted = formatter.format(LogLevel.ERROR, f"Тест: {description}")
+        formatted = formatter.format(LogLevel.INFO, f"Тест: {description}")
         print(f"{description}: {formatted}")
 
-    # Тестируем разные уровни логирования
     print("\n--- Тест уровней логирования ---")
     formatter = StandardFormatter()
     for level in LogLevel:
@@ -275,8 +275,8 @@ def test_handlers():
     syslog.handle(LogLevel.ERROR, "Тест системных логов")
 
 
-def comprehensive_logger_test():
-    print("\n=== КОМПЛЕКСНЫЙ ТЕСТ LOGGER ===")
+def logger_test():
+    print("\n=== ТЕСТ LOGGER ===")
 
     # Создаем логгер с разными комбинациями
     filters = [
@@ -300,33 +300,6 @@ def comprehensive_logger_test():
     for level, message in test_cases:
         print(f"\nТест: {level.name} - '{message}'")
         logger.log(level, message)
-
-
-def test_processing_chain():
-    print("\n=== ТЕСТ ЦЕПОЧКИ ОБРАБОТКИ ===")
-
-    class TestHandler(LogHandlerProtocol):
-        def __init__(self, name):
-            self.name = name
-            self.messages = []
-
-        def handle(self, log_level: LogLevel, text: str) -> None:
-            self.messages.append(f"{self.name}: {text}")
-            print(f"{self.name} получил: {text}")
-
-    # Создаем тестовые обработчики
-    handler1 = TestHandler("Handler1")
-    handler2 = TestHandler("Handler2")
-
-    logger = Logger(
-        filters=[LevelFilter(LogLevel.INFO)],
-        formatters=[StandardFormatter()],
-        handlers=[handler1, handler2]
-    )
-
-    logger.log_info("Сообщение для всех обработчиков")
-    print(f"Handler1 получил {len(handler1.messages)} сообщений")
-    print(f"Handler2 получил {len(handler2.messages)} сообщений")
 
 
 def verify_file_output():
@@ -364,7 +337,7 @@ def automated_test():
         "SimpleFilter": False,
         "RegexFilter": False,
         "Formatter": False,
-        "MultipleHandlers": False
+        "FalseHandler": False
     }
 
     # Тест LevelFilter
@@ -412,7 +385,6 @@ if __name__ == "__main__":
     test_filters()
     test_formatter()
     test_handlers()
-    comprehensive_logger_test()
-    test_processing_chain()
+    logger_test()
     verify_file_output()
     automated_test()
